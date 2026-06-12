@@ -22,7 +22,7 @@ from a_home.views import *
 from a_users.views import profile_view
 
 urlpatterns = [
-    path('admin/', admin.site.get_secret_admin_url()),
+    path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('a_home.urls')),
     path('', include('a_rtchat.urls')),
