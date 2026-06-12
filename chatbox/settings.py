@@ -40,22 +40,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_cleanup.apps.CleanupConfig',
-
-    # My apps
+    
+    # Custom apps
     'a_home',
     'a_users',
-    'chatbox',
     'a_rtchat',
     
-    # Third party
+    # Utilities & Extensions
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'django_browser_reload',
+    'django_cleanup.apps.CleanupConfig',
     'django_htmx',
-
-    # Move these towards the bottom or comment out for web routing tests
+    'django_browser_reload',
+    
+    # Real-time components (ONLY listed here once at the bottom)
     'daphne',
     'channels',
 ]
