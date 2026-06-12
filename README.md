@@ -39,3 +39,37 @@ Choose the command matching your operating system:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+
+**On Windows:**
+
+PowerShell
+python3 -m venv .venv
+.\venv\Scripts\Activate.ps1
+2. Install Dependencies
+Upgrade your package installer and pull in all required Python modules:
+
+Bash
+pip install --upgrade pip
+pip install -r requirements.txt
+3. Database Migration & Admin Setup
+Initialize the database schema and create your initial admin credentials:
+
+Bash
+python manage.py migrate
+python manage.py createsuperuser
+4. Run the Application
+Start the local development server:
+
+Bash
+python manage.py runserver
+Once running, navigate to your web browser and open:
+👉 http://localhost:8000
+
+📂 Project Structure Note
+To ensure the preview image loads correctly on your GitHub repository page, keep the image file named exactly Screenshot 2026-06-12 154208.png in the root directory of your project alongside this README file.
+
+---
+
+### 💡 Quick Tips for You:
+1. **Image Path:** The file name in the HTML `<img>` tag is URL-encoded (`%20` replacing the spaces) to prevent broken links on GitHub, so you don't have to rename your file. Just make sure the file `Screenshot 2026-06-12 154208.png` is uploaded to the same main directory as this `README.md`.
+2. **Customization:** Feel free to update the **Features** list if you are using specific technologies under the hood (like Django Channels, WebSockets, or Tailwind CSS)!
