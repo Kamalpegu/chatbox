@@ -34,7 +34,6 @@ CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',')]
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
