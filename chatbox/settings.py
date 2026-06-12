@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     # My apps
     'a_home',
     'a_users',
-    'a_core',
+    'chatbox',
     'a_rtchat',
     
     # Third party
