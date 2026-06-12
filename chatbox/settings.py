@@ -52,11 +52,14 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'django_htmx',
     'django_browser_reload',
-    
-    # Real-time components (ONLY listed here once at the bottom)
-    'daphne',
-    'channels',
 ]
+
+# Only load real-time development servers when running locally, not on Vercel
+import os
+if not os.environ.get('VERCEL'):
+    INSTALLED_APPS = ['daphne'] + INSTALLED_APPS + ['channels']
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
