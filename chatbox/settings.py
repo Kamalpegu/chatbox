@@ -31,12 +31,6 @@ ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 _csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*')
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',')]
 
-STATIC_URL = 'static/'
-
-# Tell Django to look into a global static directory if it's not app-specific
-STATICFILES_DIRS = [
-    BASE_DIR / 'static', 
-]
 
 # Application definition
 
@@ -62,14 +56,13 @@ INSTALLED_APPS = [
 ]
 
 # Only load real-time development servers when running locally, not on Vercel
-import os
 if not os.environ.get('VERCEL'):
     INSTALLED_APPS = ['daphne'] + INSTALLED_APPS + ['channels']
 
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Handles static file delivery reliably on Vercel
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,9 +71,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
-if DEBUG:
-    MIDDLEWARE += ['django_browser_reload.middleware.BrowserReloadMiddleware']
+
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -107,8 +100,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'chatbox.wsgi.application'
-#ASGI_APPLICATION = 'a_core.asgi.application'
-
 
 
 CHANNEL_LAYERS = {
@@ -175,7 +166,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [ BASE_DIR / 'static' ]
+
+STATICFILES_DIRS = [ 
+    BASE_DIR / 'static' 
+]
+
+# The directory where collectstatic will gather all static assets for production deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media' 
