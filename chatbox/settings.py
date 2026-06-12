@@ -31,12 +31,6 @@ ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 _csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*')
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',')]
 
-STATIC_URL = 'static/'
-
-# Tell Django to look into a global static directory if it's not app-specific
-STATICFILES_DIRS = [
-    BASE_DIR / 'static', 
-]
 
 # Application definition
 
