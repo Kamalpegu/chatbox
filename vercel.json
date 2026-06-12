@@ -1,4 +1,5 @@
 {
+  "buildCommand": "",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://your-backend-domain.com/api/$1" }
   ]
