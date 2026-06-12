@@ -1,7 +1,10 @@
 [project]
 name = "chatbox"
 version = "0.1.0"
-dependencies = []
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
 
 [tool.vercel.scripts]
 build = "python manage.py migrate --noinput"
