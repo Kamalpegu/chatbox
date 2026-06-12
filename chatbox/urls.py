@@ -29,6 +29,7 @@ urlpatterns = [
     path('', include('a_rtchat.urls')),
     path('profile/', include('a_users.urls')),
     path('@<username>/', profile_view, name="profile"),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
 
 # Only used in development
