@@ -1,4 +1,4 @@
-Django==6.0.3
+Django==5.2.15
 django-allauth==65.15.0
 django-browser-reload==1.21.0
 django-cleanup==9.0.0
