@@ -41,24 +41,24 @@ STATICFILES_DIRS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    
-    # Custom apps
-    'a_home',
-    'a_users',
-    'a_rtchat',
-    
-    # Utilities & Extensions
-    'allauth',
-    'allauth.account',
-    'django_cleanup.apps.CleanupConfig',
-    'django_htmx',
-    'django_browser_reload',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    # Custom apps
+    'a_home',
+    'a_users',
+    'a_rtchat',
+    
+    # Utilities & Extensions
+    'allauth',
+    'allauth.account',
+    'django_cleanup.apps.CleanupConfig',
+    'django_htmx',
+    'django_browser_reload',
 ]
 
 # Only load real-time development servers when running locally, not on Vercel
