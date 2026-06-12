@@ -3,6 +3,9 @@ name = "chatbox"
 version = "0.1.0"
 dynamic = ["dependencies"]
 
+[tool.setuptools]
+packages = []
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 
