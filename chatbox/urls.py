@@ -23,7 +23,7 @@ from a_users.views import profile_view
 from my_security_utils import get_secret_admin_url
 
 urlpatterns = [
-    path(f'{get_secret_admin_url()}/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('a_home.urls')),
     path('', include('a_rtchat.urls')),
