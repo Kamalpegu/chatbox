@@ -18,14 +18,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 PROJECT_TITLE = "My App"
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc'
+# SECURITY: Read from environment variables
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc')
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# ALLOWED_HOSTS: parse comma-separated list from env
+_allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*')
+ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(',')]
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
-CSRF_TRUSTED_ORIGINS = [ 'https://*' ]
+# CSRF_TRUSTED_ORIGINS: parse comma-separated list from env
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',')]
 
 # Application definition
 
@@ -102,25 +105,34 @@ CHANNEL_LAYERS = {
     },
 }
 
-# For production, use Redis:
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": ["redis://default:hXjqeEQTfxbcQBwiPZiggAQqfXevmNii@redis.railway.internal:6379"],
-#         },
-#     },
-# }
+# For production with Redis, set REDIS_URL environment variable
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
