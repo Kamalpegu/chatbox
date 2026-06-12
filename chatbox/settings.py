@@ -80,7 +80,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-ROOT_URLCONF = 'a_core.urls'
+ROOT_URLCONF = 'chatbox.urls'
 
 TEMPLATES = [
     {
