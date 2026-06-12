@@ -55,6 +55,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'django_browser_reload',
     'django_htmx',
+
+    # Move these towards the bottom or comment out for web routing tests
+    'daphne',
+    'channels',
 ]
 
 MIDDLEWARE = [
