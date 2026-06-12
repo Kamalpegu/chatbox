@@ -11,5 +11,11 @@
       "src": "/(.*)",
       "dest": "chatbox/wsgi.py"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "chatbox.settings"
+    }
+  },
+  "buildCommand": "python manage.py migrate --noinput"
 }
