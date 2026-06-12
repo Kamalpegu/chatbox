@@ -20,9 +20,10 @@ from django.conf.urls.static import static
 from django.conf import settings
 from a_home.views import *
 from a_users.views import profile_view
+from my_security_utils import get_secret_admin_url
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(f'{get_secret_admin_url()}/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('a_home.urls')),
     path('', include('a_rtchat.urls')),
