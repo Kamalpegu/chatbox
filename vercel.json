@@ -1,16 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "chmod +x build.sh && ./build.sh",
   "builds": [
     {
-      "src": "a_core/wsgi.py",
+      "src": "chatbox/wsgi.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "a_core/wsgi.py"
+      "dest": "chatbox/wsgi.py"
     }
   ]
 }
