@@ -100,7 +100,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'chatbox.wsgi.application'
-3ASGI_APPLICATION = 'a_core.asgi.application'
+#ASGI_APPLICATION = 'a_core.asgi.application'
 
 
 
