@@ -56,10 +56,8 @@ INSTALLED_APPS = [
 ]
 
 # Only load real-time development servers when running locally, not on Vercel
-import os
 if not os.environ.get('VERCEL'):
-    INSTALLED_APPS = ['daphne'] + INSTALLED_APPS + ['channels']
-
+    INSTALLED_APPS = ['daphne'] + INSTALLED_APPS + ['channels']
 
 
 MIDDLEWARE = [
