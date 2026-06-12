@@ -9,6 +9,8 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.91/dist/_hyperscript.min.js" integrity="sha384-kNli9q2SAIKZyCaj/HsxM+q3rmzWVyOTVcwQ/X1tVf7h38a1wkbfBYpckMRA0eSr" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style type="text/tailwindcss">
         [x-cloak] { 
@@ -104,6 +106,7 @@
 
     {% block layout %}
     {% endblock %}
+    {% block javascript %}{% endblock %}
 
 </body>
 </html>

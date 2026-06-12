@@ -10,6 +10,10 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
+    class Meta:
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
+    
     @property
     def name(self):
         if self.displayname:
@@ -25,3 +29,11 @@ class CustomUser(AbstractUser):
         except:
             avatar = static('images/avatar.svg')
         return avatar
+
+
+class AuthUserProxy(CustomUser):
+    class Meta:
+        proxy = True
+        app_label = 'auth'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'

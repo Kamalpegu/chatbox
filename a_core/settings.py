@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,6 +30,7 @@ CSRF_TRUSTED_ORIGINS = [ 'https://*' ]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +42,8 @@ INSTALLED_APPS = [
     # My apps
     'a_home',
     'a_users',
+    'a_core',
+    'a_rtchat',
     
     # Third party
     'allauth',
@@ -68,7 +72,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-ROOT_URLCONF = '_core.urls'
+ROOT_URLCONF = 'a_core.urls'
 
 TEMPLATES = [
     {
@@ -87,8 +91,26 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = '_core.wsgi.application'
+#WSGI_APPLICATION = 'a_core.wsgi.application'
+ASGI_APPLICATION = 'a_core.asgi.application'
 
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
+# For production, use Redis:
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": ["redis://default:hXjqeEQTfxbcQBwiPZiggAQqfXevmNii@redis.railway.internal:6379"],
+#         },
+#     },
+# }
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
