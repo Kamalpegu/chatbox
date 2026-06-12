@@ -10,6 +10,25 @@ This project uses Django + Channels (Daphne) for WebSockets and should be deploy
 ## ⚠️ Important: Do NOT deploy to Vercel serverless
 Vercel is a serverless platform and **cannot run Daphne/Channels** for persistent WebSocket connections. Each function has a 10-second timeout. Deploy the backend to a proper ASGI host (Render, Fly, Heroku, Railway, etc.).
 
+## Deployment Architecture Options
+
+### Option A: Full stack on ASGI host (Simpler — Recommended for Django templates)
+If you want to keep Django templates and serve everything from one host:
+- Deploy the entire Django + Channels app to **Render** / Heroku / Fly.
+- No Vercel needed.
+- Use `Procfile` or `Dockerfile`.
+- Static files served by Django.
+
+### Option B: Separate frontend on Vercel + backend on ASGI host (Recommended for API-first frontend)
+If you want to migrate to React/Next.js frontend later:
+- Deploy frontend (React/Next.js) to **Vercel**.
+- Deploy backend (Django + Channels) to **Render** / Heroku / Fly.
+- Frontend calls backend API via direct URLs (HTTP for REST, WSS for WebSocket).
+- `.vercelignore` excludes Python dependencies from Vercel build.
+
+**This guide assumes Option B.** If using Option A, skip Vercel setup and deploy everything to Render.
+
+
 ## Step 1: Set up backend on Render
 
 ### Create a Render service
@@ -99,3 +118,22 @@ Update `vercel.json` to proxy HTTP API calls to the backend:
 ### Database not found
 - Ensure `DATABASE_URL` is set on the backend host.
 - Run migrations on the backend: `python manage.py migrate --noinput` (add to Render deploy hook or manually run once).
+
+## Notes
+- Do not run the Channels worker on Vercel (serverless) — use a full backend host.
+- Test locally using the same `REDIS_URL` as production if possible.
+
+---
+
+## ALTERNATIVE: Deploy entire Django app to Render (Option A)
+
+If you prefer to keep everything on one host (simpler):
+
+1. Create a **Web Service** on Render.
+2. Connect GitHub repo `Kamalpegu/chatbox`.
+3. Use **Start command**: `daphne -b 0.0.0.0 -p $PORT a_core.asgi:application`
+4. Add PostgreSQL and Redis databases.
+5. Set environment variables (SECRET_KEY, DATABASE_URL, REDIS_URL, DEBUG=False, ALLOWED_HOSTS).
+6. Deploy.
+
+No Vercel needed. All templates served by Django.
