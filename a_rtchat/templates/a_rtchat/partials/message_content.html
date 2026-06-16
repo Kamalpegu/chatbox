@@ -1,0 +1,12 @@
+{% if message.body %}
+    <span class="break-words leading-relaxed text-[15px]">{{ message.body|urlize }}</span>
+{% elif message.file %}
+    {% if message.is_image %}
+        <img class="max-w-72 min-w-8 rounded-2xl object-cover ring-1 ring-white/40" src="{{ message.file.url }}" />
+    {% else %}
+        <a class="inline-flex items-center gap-3 rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-indigo-50 hover:text-indigo-700 hover:ring-indigo-200 transition" href="{{ message.file.url }}" target="_blank" download>
+            <span class="rounded-xl bg-indigo-100 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-indigo-700">{{ message.file_label }}</span>
+            <span class="truncate max-w-56">{{ message.filename }}</span>
+        </a>
+    {% endif %}
+{% endif %}       

@@ -1,0 +1,14 @@
+{% extends 'layouts/box.html' %}
+
+{% block content %}
+
+<h1 class="mb-4">New Group Chat</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create</button>
+    <a class="button button-gray ml-1" href="{% url 'home' %}">Cancel</a>
+</form>
+
+{% endblock %}

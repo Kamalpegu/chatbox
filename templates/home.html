@@ -1,0 +1,56 @@
+{% extends 'layouts/page.html' %}
+
+{% block content %}
+
+<div class="mx-auto max-w-4xl">
+    <div class="mb-8 rounded-3xl bg-white p-8 shadow-2xl shadow-slate-950/10 ring-1 ring-slate-200">
+        <p class="text-sm font-bold uppercase tracking-[0.25em] text-indigo-600">Live messaging</p>
+        <h1>Chats</h1>
+        <p class="mt-2 text-slate-600">Join public conversations, group chats, and private messages from one place.</p>
+    </div>
+
+    <div class="grid gap-4">
+        <a href="{% url 'home' %}" class="group flex items-center justify-between rounded-2xl bg-white p-5 shadow-lg shadow-slate-950/10 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-indigo-50 hover:ring-indigo-200">
+            <div>
+                <h2 class="text-lg font-bold">Public Chat</h2>
+                <p class="text-sm text-slate-500">Talk with everyone online</p>
+            </div>
+            <span class="rounded-full bg-indigo-100 px-4 py-2 text-sm font-bold text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white">Open</span>
+        </a>
+
+        {% for chatroom in groupchats %}
+            {% if chatroom.groupchat_name %}
+                <a href="{% url 'chatroom' chatroom.group_name %}" class="group flex items-center justify-between rounded-2xl bg-white p-5 shadow-lg shadow-slate-950/10 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-indigo-50 hover:ring-indigo-200">
+                    <div>
+                        <h2 class="text-lg font-bold">{{ chatroom.groupchat_name|slice:":30" }}</h2>
+                        <p class="text-sm text-slate-500">Group chat</p>
+                    </div>
+                    <span class="rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white">Join</span>
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% for chatroom in user.chat_groups.all %}
+            {% if chatroom.is_private %}
+                {% for member in chatroom.members.all %}
+                    {% if member != user %}
+                        <a href="{% url 'chatroom' chatroom.group_name %}" class="group flex items-center justify-between rounded-2xl bg-white p-5 shadow-lg shadow-slate-950/10 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-indigo-50 hover:ring-indigo-200">
+                            <div class="flex items-center gap-4">
+                                <img class="h-12 w-12 rounded-full object-cover ring-2 ring-indigo-100" src="{{ member.avatar }}" />
+                                <div>
+                                    <h2 class="text-lg font-bold">{{ member.name|slice:":30" }}</h2>
+                                    <p class="text-sm text-slate-500">Private chat</p>
+                                </div>
+                            </div>
+                            <span class="rounded-full bg-sky-100 px-4 py-2 text-sm font-bold text-sky-700 group-hover:bg-sky-600 group-hover:text-white">Message</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% empty %}
+            <div class="rounded-2xl bg-white p-6 text-center text-slate-500 shadow-lg shadow-slate-950/10 ring-1 ring-slate-200">No chats yet</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

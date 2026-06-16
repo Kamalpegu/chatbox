@@ -1,34 +1,31 @@
 {% if message.author == user %}
-<li class="flex justify-end mb-4">
-    <div class="bg-green-200 rounded-l-lg rounded-tr-lg p-4 max-w-[75%]">
-        <span>{{ message.body }}</span>
-    </div>
-    <div class="flex items-end">
-        <svg height="13" width="8" >
-            <path fill="#bbf7d0" d="M6.3,10.4C1.5,8.7,0.9,5.5,0,0.2L0,13l5.2,0C7,13,9.6,11.5,6.3,10.4z"/>
-        </svg>
+<li class="flex justify-end mb-4 animate-in">
+    <div class="flex items-end justify-end gap-2 max-w-[85%]">
+        <div class="bg-gradient-to-br from-emerald-400 to-emerald-500 text-emerald-950 rounded-3xl rounded-br-sm p-4 shadow-lg shadow-emerald-950/15 ring-1 ring-emerald-300/60">
+            {% include 'a_rtchat/partials/message_content.html' %}
+        </div>
+        <div class="flex items-end pb-1">
+            <svg height="14" width="10" class="drop-shadow-sm">
+                <path fill="#34d399" d="M7.8,12.8C2.7,10.9,1.9,6.7,0.8,0.2L0.8,14l6.2,0C8.8,14,11.2,12.2,7.8,12.8z"/>
+            </svg>
+        </div>
     </div>
 </li>
 {% else %}
-<li>
-    <div class="flex justify-start">
-        <div class="flex items-end mr-2" >
-            <a href="{% url 'profile' message.author.username %}">
-                <img class="w-8 h-8 rounded-full object-cover" src="{{ message.author.avatar }}">
-            </a>
+<li class="mb-4">
+    <div class="flex justify-start items-end gap-3 max-w-[85%]">
+        <a href="{% url 'profile' message.author.username %}" class="shrink-0">
+            <img class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md" src="{{ message.author.avatar }}">
+        </a>
+        <div class="flex flex-col gap-1 min-w-0">
+            <div class="bg-white rounded-3xl rounded-bl-sm p-4 shadow-lg shadow-slate-950/10 ring-1 ring-slate-200">
+                {% include 'a_rtchat/partials/message_content.html' %}
+            </div>
+            <div class="text-xs font-bold px-2">
+                <span class="text-white">{{ message.author.name }}</span> 
+                <span class="text-slate-400">@{{ message.author.username }}</span>
+            </div>
         </div>
-        <div class="flex items-end" >
-            <svg height="13" width="8" >
-                <path fill="white" d="M2.8,13L8,13L8,0.2C7.1,5.5,6.5,8.7,1.7,10.4C-1.6,11.5,1,13,2.8,13z"></path>
-            </svg>
-        </div>
-        <div class="bg-white p-4 max-w-[75%] rounded-r-lg rounded-tl-lg">
-            <span>{{ message.body }}</span>
-        </div>  
-    </div>
-    <div class="text-sm font-light py-1 ml-10">
-        <span class="text-white">{{ message.author.name }}</span> 
-        <span class="text-gray-400">@{{ message.author.username }}</span>
     </div>
 </li>
 {% endif %}

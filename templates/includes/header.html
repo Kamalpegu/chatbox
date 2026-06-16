@@ -1,28 +1,74 @@
-<header class="flex items-center justify-between bg-gray-800 h-20 px-8 text-white sticky top-0 z-40">
+<header class="flex items-center justify-between bg-slate-950/90 backdrop-blur-xl border-b border-white/10 h-20 px-6 lg:px-10 text-white sticky top-0 z-40 shadow-2xl shadow-slate-950/20">
     <div>
-        <a class="flex items-center gap-2" href="/">
-            <img class="h-6" src="/static/images/logo.svg" alt="Logo"/>
-            <span class="text-lg font-bold">{{ PROJECT_TITLE }}</span>
+        <a class="flex items-center gap-3 group" href="/">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500 shadow-lg shadow-indigo-500/25 ring-1 ring-white/15 group-hover:scale-105 transition-transform">
+                <img class="h-6" src="/static/images/logo.svg" alt="Logo"/>
+            </div>
+            <span class="text-lg font-black tracking-wide">{{ PROJECT_TITLE }}</span>
         </a>
     </div>
-    <nav class="block bg-gray-800 relative">
+    <nav class="block bg-slate-950/60 relative">
         <ul class="navitems flex items-center justify-center h-full">
             {% if request.user.is_authenticated %}
-            <li><a href="/">Home</a></li>
             <li x-data="{ dropdownOpen: false }" class="relative">
-                <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
-                    <img class="h-8 w-8 rounded-full object-cover" src="{{ user.avatar }}"/>
-                    {{ user.name }}
-                    <img x-bind:class="dropdownOpen && 'rotate-180 duration-300'" class="w-4" src="https://img.icons8.com/small/32/777777/expand-arrow.png"/>
+                <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none rounded-xl">
+                    <span id="online-user-count" hx-ext="ws" ws-connect="/ws/online-status/"></span>
+                    <div id="online-in-chats"></div>
+                    <span class="font-bold">Chat</span>
+                    <img x-bind:class="dropdownOpen && 'rotate-180 duration-300'" class="w-4 opacity-70" src="https://img.icons8.com/small/32/777777/expand-arrow.png"/>
                 </a>
-                <div x-show="dropdownOpen" x-cloak class="absolute right-0 bg-white text-black shadow rounded-lg w-40 p-2 z-20"
-                x-transition:enter="duration-300 ease-out"
-                x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
+                <div x-show="dropdownOpen" x-cloak class="absolute right-0 mt-3 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 rounded-2xl w-56 p-2 z-30 ring-1 ring-slate-200"
+                x-transition:enter="duration-200 ease-out"
+                x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                >
+                    <ul class="hoverlist [&>li>a]:justify-end">
+                        <li>
+                            <a class="leading-5 text-right font-bold text-slate-900" href="{% url 'home' %}">
+                                Public Chat
+                            </a>
+                        </li>
+                        {% for chatroom in groupchats %}
+                            {% if chatroom.groupchat_name %}
+                            <li>
+                                <a class="leading-5 text-right text-slate-700" href="{% url 'chatroom' chatroom.group_name %}">
+                                    {{ chatroom.groupchat_name|slice:":30" }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% for chatroom in user.chat_groups.all %}
+                            {% if chatroom.is_private %}
+                                {% for member in chatroom.members.all %}
+                                    {% if member != user %}
+                                    <li>
+                                        <a class="leading-5 text-right text-slate-700" href="{% url 'chatroom' chatroom.group_name %}">
+                                            {{ member.name|slice:":30" }}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            
+            <li x-data="{ dropdownOpen: false }" class="relative">
+                <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none rounded-xl">
+                    <img class="h-9 w-9 rounded-full object-cover ring-2 ring-white/20" src="{{ user.avatar }}"/>
+                    <span class="font-bold">{{ user.name }}</span>
+                    <img x-bind:class="dropdownOpen && 'rotate-180 duration-300'" class="w-4 opacity-70" src="https://img.icons8.com/small/32/777777/expand-arrow.png"/>
+                </a>
+                <div x-show="dropdownOpen" x-cloak class="absolute right-0 mt-3 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 rounded-2xl w-48 p-2 z-30 ring-1 ring-slate-200"
+                x-transition:enter="duration-200 ease-out"
+                x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                 >
                     <ul class="hoverlist [&>li>a]:justify-end">
                         <li><a href="{% url 'profile' %}">My Profile</a></li>
                         <li><a href="{% url 'profile-edit' %}">Edit Profile</a></li>
+                        <li><a href="{% url 'new-groupchat' %}">Create Chat</a></li>
                         <li><a href="{% url 'profile-settings' %}">Settings</a></li>
                         <li><a href="{% url 'account_logout' %}">Log Out</a></li>
                     </ul>

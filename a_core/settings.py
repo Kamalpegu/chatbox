@@ -11,16 +11,27 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+import dj_database_url
 from pathlib import Path
+from environ import Env
+env = Env()
+Env.read_env()
+ENVIRONMENT = env('ENVIRONMENT', default='development')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-PROJECT_TITLE = "My App"
+PROJECT_TITLE = "CHAT APP"
 
 # SECURITY: Read from environment variables
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc')
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+SECRET_KEY= env('SECRET_KEY')
+
+
+if ENVIRONMENT == 'development':
+    DEBUG = True
+else:
+    DEBUG = False    
+
 
 # ALLOWED_HOSTS: parse comma-separated list from env
 _allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*')
@@ -34,13 +45,17 @@ CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',')]
 
 INSTALLED_APPS = [
     'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_cleanup.apps.CleanupConfig',
+    'cloudinary_storage',
+    'cloudinary',
 
     # My apps
     'a_home',
@@ -56,6 +71,8 @@ INSTALLED_APPS = [
     'django_htmx',
 ]
 
+SITE_ID = 1  
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -66,9 +83,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
-if DEBUG:
-    MIDDLEWARE += ['django_browser_reload.middleware.BrowserReloadMiddleware']
+
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -89,6 +106,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'a_home.cprocs.project_title',
+                'a_rtchat.context_processors.groupchats',
             ],
         },
     },
@@ -99,15 +117,16 @@ ASGI_APPLICATION = 'a_core.asgi.application'
 
 
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
 
-# For production with Redis, set REDIS_URL environment variable
-REDIS_URL = os.environ.get('REDIS_URL')
-if REDIS_URL:
+#For production with Redis, set REDIS_URL environment variable.
+REDIS_URL = env('REDIS_URL')
+if ENVIRONMENT == 'development':
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        },
+    }
+else:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -115,24 +134,24 @@ if REDIS_URL:
                 "hosts": [REDIS_URL],
             },
         },
-    }
+    }    
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
-    }
-else:
+if ENVIRONMENT == 'development':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+else:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(env('DATABASE_URL'))
+    }    
 
 
 # Password validation
@@ -171,9 +190,17 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [ BASE_DIR / 'static' ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media' 
+
+if ENVIRONMENT == 'development':
+    MEDIA_ROOT = BASE_DIR / 'media' 
+else:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    CLOUDINARY_STORAGE = {
+        'CLOUDINARY_URL': env('CLOUDINARY_URL')
+    }    
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -183,6 +210,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'a_users.CustomUser'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = env('EMAIL_ADDRESS')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = f"assambot {env('EMAIL_ADDRESS')}"
+
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
