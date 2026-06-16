@@ -217,3 +217,4 @@ DEFAULT_FROM_EMAIL = f"assambot {env('EMAIL_ADDRESS', default='')}"
 
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
