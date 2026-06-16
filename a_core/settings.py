@@ -17,7 +17,7 @@ from pathlib import Path
 from environ import Env
 env = Env()
 Env.read_env()
-ENVIRONMENT = env('ENVIRONMENT', default='development')
+ENVIRONMENT = env('ENVIRONMENT', default='production' if 'VERCEL' in os.environ else 'development')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -140,14 +140,23 @@ else:
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.0/topics/settings/#databases
 
-if ENVIRONMENT == 'development':
+DATABASE_URL = env('DATABASE_URL', default=env('POSTGRES_URL', default=env('POSTGRES_URL_NON_POOLING', default=None)))
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+    }
+elif ENVIRONMENT == 'development':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
+    }
+else:
+    raise ImproperlyConfigured('Set DATABASE_URL, POSTGRES_URL, or POSTGRES_URL_NON_POOLING for production.')
     }
 else:
     import dj_database_url
