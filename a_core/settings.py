@@ -114,12 +114,13 @@ TEMPLATES = [
 
 #WSGI_APPLICATION = 'a_core.wsgi.application'
 ASGI_APPLICATION = 'a_core.asgi.application'
+WSGI_APPLICATION = 'a_core.wsgi.application'
 
 
 
 
 #For production with Redis, set REDIS_URL environment variable.
-REDIS_URL = env('REDIS_URL')
+REDIS_URL = env('REDIS_URL', default=None)
 if ENVIRONMENT == 'development':
     CHANNEL_LAYERS = {
         "default": {
@@ -189,7 +190,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [ BASE_DIR / 'static' ]
+STATICFILES_DIRS = [ BASE_DIR / 'static' ] if (BASE_DIR / 'static').exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = 'media/'
@@ -211,12 +212,12 @@ LOGIN_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'a_users.CustomUser'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = env('EMAIL_ADDRESS')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_HOST_USER = env('EMAIL_ADDRESS', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = f"assambot {env('EMAIL_ADDRESS')}"
+DEFAULT_FROM_EMAIL = f"assambot {env('EMAIL_ADDRESS', default='')}"
 
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
