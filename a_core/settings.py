@@ -35,8 +35,8 @@ else:
 
 
 # ALLOWED_HOSTS: parse comma-separated list from env
-_allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,localhost,127.0.0.1,chatbox-kyqp5uult-kamalpegus-projects.vercel.app,*')
-ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(',')]
+
+ALLOWED_HOSTS = ['.vercel.app']
 
 # CSRF_TRUSTED_ORIGINS: parse comma-separated list from env
 _csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*')
