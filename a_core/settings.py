@@ -142,28 +142,13 @@ else:
 # Database
 # https://docs.djangoproject.com/en/5.0/topics/settings/#databases
 
-DATABASE_URL = env('DATABASE_URL', default=env('POSTGRES_URL', default=env('POSTGRES_URL_NON_POOLING', default=None)))
-
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
-    }
-elif ENVIRONMENT == 'development':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    raise ImproperlyConfigured('Set DATABASE_URL, POSTGRES_URL, or POSTGRES_URL_NON_POOLING for production.')
-    }
-else:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(env('DATABASE_URL'))
-    }    
-
+DATABASES = {
+    "default": dj_database_url.parse(
+        env("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
