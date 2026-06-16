@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_TITLE = "CHAT APP"
 
 # SECURITY: Read from environment variables
-SECRET_KEY= env('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-dummy-key-for-vercel-build-only-change-this-in-production')
 
 
 if ENVIRONMENT == 'development':
@@ -142,11 +142,12 @@ else:
 # Database
 # https://docs.djangoproject.com/en/5.0/topics/settings/#databases
 
+database_url = env("DATABASE_URL", default="sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3"))
 DATABASES = {
     "default": dj_database_url.parse(
-        env("DATABASE_URL"),
+        database_url,
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=False if database_url.startswith('sqlite') else True,
     )
 }
 
@@ -195,7 +196,7 @@ if ENVIRONMENT == 'development':
 else:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     CLOUDINARY_STORAGE = {
-        'CLOUDINARY_URL': env('CLOUDINARY_URL')
+        'CLOUDINARY_URL': env('CLOUDINARY_URL', default='')
     }    
 
 # Default primary key field type
