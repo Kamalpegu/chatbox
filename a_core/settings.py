@@ -44,7 +44,6 @@ CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
     'channels',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -67,14 +66,14 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'django_browser_reload',
     'django_htmx',
-]
+] + (['django_browser_reload'] if ENVIRONMENT == 'development' else [])
 
 SITE_ID = 1  
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -83,7 +82,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 
@@ -112,7 +110,9 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'a_core.asgi.application'
+# Only use ASGI in development (Daphne). Vercel uses WSGI.
+if ENVIRONMENT == 'development':
+    ASGI_APPLICATION = 'a_core.asgi.application'
 WSGI_APPLICATION = 'a_core.wsgi.application'
 
 # Channel layer configuration: Redis if REDIS_URL is present, otherwise InMemory
