@@ -100,11 +100,14 @@
                     </div>
                 </div>
 
-                <form id="chat_message_form"  class="w-full"
-                    hx-ext="ws"
-                    ws-connect="/ws/chatroom/{{ chatroom_name }}/"
-                    ws-send                                 
-                    _="on htmx:wsAfterSend reset() me">
+                <input type="hidden" name="last_message_id" id="last_message_id" value="{{ last_message_id }}">
+                <div hx-get="{% url 'chat-messages-updates' chat_group.group_name %}" hx-trigger="every 3s" hx-include="#last_message_id" hx-swap="none"></div>
+
+                <form id="chat_message_form" class="w-full"
+                    hx-post="{% url 'chatroom' chat_group.group_name %}"
+                    hx-target="#chat_messages"
+                    hx-swap="beforeend"
+                    _="on htmx:afterRequest reset() me">
                     {% csrf_token %}
                     {{ form }}
                 </form>
@@ -116,8 +119,8 @@
                     _="on htmx:beforeSend reset() me" >
                     {% csrf_token %}
                     <label class="flex flex-1 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600">
-                        <input type="file" name="file" id="id_file" class="hidden">
-                        Choose file
+                        <input type="file" name="file" id="id_file" class="hidden" onchange="this.form.requestSubmit()">
+                        <span id="file_label_text">Choose file</span>
                     </label>
                     <button type="submit" class="whitespace-nowrap !text-sm !py-3 !px-5 h-fit">Upload</button>
                 </form>

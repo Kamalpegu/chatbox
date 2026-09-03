@@ -37,6 +37,8 @@ def chat_view(request, chatroom_name='public-chat'):
             return redirect('home') # Adjust to your actual home URL name
 
     chat_messages = chat_group.chat_messages.all()[:30]
+    first_message = chat_messages.first()
+    last_message_id = first_message.id if first_message else 0
     form = ChatmessageCreateForm()
     
     # Get other users in this chat
@@ -44,12 +46,9 @@ def chat_view(request, chatroom_name='public-chat'):
         groupmessage__group=chat_group
     ).exclude(id=request.user.id).distinct()
 
-
-
     if chat_group.groupchat_name:
         if request.user not in chat_group.members.all():
             chat_group.members.add(request.user)
-
 
     # Handle HTMX AJAX requests safely
     if request.htmx and request.method == "POST":
@@ -60,15 +59,28 @@ def chat_view(request, chatroom_name='public-chat'):
             new_message.author = request.user
             new_message.save()
             
+            channel_layer = get_channel_layer()
+            if channel_layer:
+                try:
+                    async_to_sync(channel_layer.group_send)(
+                        chat_group.group_name,
+                        {
+                            'type': 'message_handler',
+                            'message_id': new_message.id,
+                        }
+                    )
+                except Exception:
+                    pass
+            
             context = {
-                'message' : new_message,  # 👈 Fixed: changed from 'message' to 'new_message'
+                'message' : new_message,
                 'user' : request.user,
             }
-            # 👈 Fixed: changed from redirect() to render() for your partial layout
             return render(request, 'a_rtchat/partials/chat_message_p.html', context)
 
     context = {
         'chat_messages' : chat_messages, 
+        'last_message_id': last_message_id,
         'form' : form,
         'other_user' : other_user,
         'chatroom_name' : chatroom_name,
@@ -76,6 +88,31 @@ def chat_view(request, chatroom_name='public-chat'):
     }
 
     return render(request, 'a_rtchat/chat.html', context)
+
+
+@login_required
+def chat_messages_updates(request, chatroom_name):
+    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    last_id = request.GET.get('last_message_id')
+    
+    if not last_id or not str(last_id).isdigit():
+        return HttpResponse(status=204)
+        
+    last_id = int(last_id)
+    # Exclude messages sent by the current user so we don't duplicate HTMX POSTed messages
+    new_messages = chat_group.chat_messages.filter(id__gt=last_id).exclude(author=request.user).order_by('created')
+    
+    if not new_messages.exists():
+        return HttpResponse(status=204)
+        
+    latest_id = chat_group.chat_messages.all().first().id if chat_group.chat_messages.exists() else last_id
+    
+    context = {
+        'new_messages': new_messages,
+        'user': request.user,
+        'latest_id': latest_id,
+    }
+    return render(request, 'a_rtchat/partials/chat_message_updates.html', context)
 
 
 def get_or_create_chatroom(request, username):
@@ -191,6 +228,7 @@ def chatroom_leave_view(request, chatroom_name):
     return render(request, 'a_rtchat/chatroom_leave.html', {'chat_group': chat_group})
 
 
+@login_required
 def chat_file_upload(request, chatroom_name):
     chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
     
@@ -206,12 +244,19 @@ def chat_file_upload(request, chatroom_name):
     
     channel_layer = get_channel_layer()
     if channel_layer:
-        async_to_sync(channel_layer.group_send)(
-            chat_group.group_name,
-            {
-                'type': 'message_handler',
-                'message_id': message.id,
-            }
-        )
+        try:
+            async_to_sync(channel_layer.group_send)(
+                chat_group.group_name,
+                {
+                    'type': 'message_handler',
+                    'message_id': message.id,
+                }
+            )
+        except Exception:
+            pass
     
-    return HttpResponse()
+    context = {
+        'message': message,
+        'user': request.user,
+    }
+    return render(request, 'a_rtchat/partials/chat_message_p.html', context)

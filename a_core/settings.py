@@ -34,13 +34,12 @@ else:
     DEBUG = False    
 
 
-# ALLOWED_HOSTS: parse comma-separated list from env
-
-ALLOWED_HOSTS = ['.vercel.app']
+# ALLOWED_HOSTS: parse list from env, default to allow all Vercel and local domains
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*', '.vercel.app', 'localhost', '127.0.0.1'])
 
 # CSRF_TRUSTED_ORIGINS: parse comma-separated list from env
-_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*')
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',')]
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.vercel.app,http://127.0.0.1,http://localhost')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
 
 # Application definition
 
@@ -113,28 +112,24 @@ TEMPLATES = [
     },
 ]
 
-#WSGI_APPLICATION = 'a_core.wsgi.application'
 ASGI_APPLICATION = 'a_core.asgi.application'
 WSGI_APPLICATION = 'a_core.wsgi.application'
 
-
-
-
-#For production with Redis, set REDIS_URL environment variable.
+# Channel layer configuration: Redis if REDIS_URL is present, otherwise InMemory
 REDIS_URL = env('REDIS_URL', default=None)
-if ENVIRONMENT == 'development':
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer",
-        },
-    }
-else:
+if REDIS_URL:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
                 "hosts": [REDIS_URL],
             },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
         },
     }    
 
@@ -143,13 +138,22 @@ else:
 # https://docs.djangoproject.com/en/5.0/topics/settings/#databases
 
 database_url = env("DATABASE_URL", default="sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3"))
-DATABASES = {
-    "default": dj_database_url.parse(
-        database_url,
-        conn_max_age=600,
-        ssl_require=False if database_url.startswith('sqlite') else True,
-    )
-}
+
+if ENVIRONMENT == 'development':
+    DATABASES = {
+        "default": {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            ssl_require=False if database_url.startswith('sqlite') else True,
+        )
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

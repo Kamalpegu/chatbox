@@ -67,9 +67,6 @@ class groupMessage(models.Model):
         
     @property    
     def is_image(self):
-        try:
-            image = Image.open(self.file) 
-            image.verify()
-            return True 
-        except:
+        if not self.filename:
             return False
+        return self.extension in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif']
