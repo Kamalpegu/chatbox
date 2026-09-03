@@ -117,7 +117,7 @@ WSGI_APPLICATION = 'a_core.wsgi.application'
 
 # Channel layer configuration: Redis if REDIS_URL is present, otherwise InMemory
 REDIS_URL = env('REDIS_URL', default=None)
-if REDIS_URL:
+if REDIS_URL and ENVIRONMENT == 'production':
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
