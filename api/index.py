@@ -1,16 +1,44 @@
-from a_core.wsgi import application
+import os
+import sys
 
-class VercelWSGIMiddleware:
-    def __init__(self, app):
-        self.app = app
+# Add the project root to sys.path so Django can find all modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    def __call__(self, environ, start_response):
-        # Fix PATH_INFO on Vercel so Django receives user-requested route instead of /api/index.py
-        request_uri = environ.get('REQUEST_URI', '')
-        if request_uri:
-            environ['PATH_INFO'] = request_uri.split('?')[0]
-        elif environ.get('PATH_INFO', '').startswith('/api/index.py'):
-            environ['PATH_INFO'] = '/'
-        return self.app(environ, start_response)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'a_core.settings')
 
-app = VercelWSGIMiddleware(application)
+from django.core.wsgi import get_wsgi_application
+django_app = get_wsgi_application()
+
+
+def application(environ, start_response):
+    """
+    Vercel WSGI entry point.
+    Vercel passes the real URL in multiple environ keys.
+    We restore PATH_INFO and QUERY_STRING from them.
+    """
+    # Vercel sets the original request path in these headers
+    original_path = (
+        environ.get('HTTP_X_FORWARDED_URI')        # preferred
+        or environ.get('HTTP_X_NOW_URI')           # older Vercel
+        or environ.get('REQUEST_URI')              # fallback
+        or environ.get('PATH_INFO', '/')
+    )
+
+    # Strip query string from path
+    if '?' in original_path:
+        path, query = original_path.split('?', 1)
+        environ['PATH_INFO'] = path
+        environ['QUERY_STRING'] = query
+    else:
+        environ['PATH_INFO'] = original_path
+        if 'QUERY_STRING' not in environ:
+            environ['QUERY_STRING'] = ''
+
+    # Safety: never let /api/index.py reach Django's URL router
+    if environ['PATH_INFO'] in ('/api/index.py', '/api/index'):
+        environ['PATH_INFO'] = '/'
+
+    return django_app(environ, start_response)
+
+
+app = application
